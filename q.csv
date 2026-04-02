@@ -1,3 +1,21 @@
 topic,question,opt1,opt2,opt3,opt4,correct
-Math,2+2=?,3,4,5,6,B
-Science,Water formula?,H2O,CO2,O2,N2,A
+Fractions,What is 1/2 + 1/3?,2/5,3/5,5/6,1,A
+Fractions,What is 3/4 - 1/2?,1/4,1/2,3/2,2,A
+Integers,What is -5 + 8?,-3,3,13,-13,B
+Integers,What is -7 - 3?,-10,10,-4,4,A
+Algebra,What is x if x + 5 = 12?,5,6,7,8,C
+Algebra,What is x if 2x = 14?,6,7,8,9,B
+Geometry,How many sides does a hexagon have?,5,6,7,8,B
+Geometry,Sum of angles in a triangle?,90°,180°,360°,270°,B
+Decimals,What is 0.5 + 0.25?,0.75,0.7,0.8,0.6,A
+Decimals,What is 1.2 × 2?,2.2,2.4,2.6,2.8,B
+Percentage,What is 50% of 200?,50,75,100,150,C
+Percentage,What is 25% of 80?,10,20,30,40,B
+Ratio,Simplify 4:8,1:2,2:3,3:4,4:5,A
+Ratio,Simplify 6:9,2:3,3:2,1:3,3:1,A
+Mensuration,Area of rectangle 5×4?,9,20,25,15,B
+Mensuration,Perimeter of square side 6?,12,18,24,36,C
+Exponents,What is 2^3?,6,8,4,10,B
+Exponents,What is 5^2?,10,20,25,15,C
+Data Handling,Mean of 2,4,6?,3,4,5,6,B
+Data Handling,Median of 1,3,5?,1,3,5,4,B
