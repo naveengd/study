@@ -1,16 +1,3 @@
-Question,Option A,Option B,Option C,Option D,Correct Answer,Topic
-ಭಾರತದ ರಾಜಧಾನಿ ಯಾವದು?,Delhi,Mumbai,Kolkata,Chennai,A,Geography
-ಹಿಂದಿ ಭಾಷೆಯ ಅಧಿಕೃತ ರಾಜ್ಯ ಯಾವದು?,Uttar Pradesh,Maharashtra,Rajasthan,Karnataka,A,Geography
-HTML full form ಯಾವದು?,Hyper Text Markup Language,High Text Markup Language,Hyperlinks Text Mark Language,Hyper Tool Markup Language,A,Technology
-CSS full form ಯಾವದು?,Cascading Style Sheets,Computer Style Sheets,Creative Style Sheets,Colorful Style Sheets,A,Technology
-ಗಣಿತದಲ್ಲಿ ಶೂನ್ಯವು ಯಾವ ಸ್ಥಾನದಲ್ಲಿ ಇದೆ?,Units,Tens,Hundreds,Thousands,A,Math
-ಪೈ ಥಾನ್ ಪ್ರೋಗ್ರಾಮಿಂಗ್ ಭಾಷೆಯ ಸೃಷ್ಟಿಕರ್ತ ಯಾರು?,Guido van Rossum,James Gosling,Dennis Ritchie,Brendan Eich,A,Technology
-ಭಾರತದ ರಾಷ್ಟ್ರಪತಿಗಳಲ್ಲಿ ಮೊದಲ ರಾಷ್ಟ್ರಪತಿ ಯಾರು?,Dr. Rajendra Prasad,Dr. Sarvepalli Radhakrishnan,Indira Gandhi,Rajiv Gandhi,A,History
-ಮೈಸೂರು ಅರಮನೆ ಯಾವ ರಾಜ್ಯದಲ್ಲಿ ಇದೆ?,Karnataka,Tamil Nadu,Kerala,Andhra Pradesh,A,Geography
-ಪ್ರಾಣಿ ಜಗತ್ತಿನಲ್ಲಿ ದೊಡ್ಡ ತಿಮಿಂಗಿಲ ಯಾವದು?,Blue Whale,Humpback Whale,Killer Whale,Fin Whale,A,Animals
-ಆಕರ್ಷಕ ಬಲವು ವಿಜ್ಞಾನದಲ್ಲಿ ಯಾವತಕವೆಂದು ಕರೆಯಲಾಗುತ್ತದೆ?,Gravity,Magnetism,Electricity,Force,D,Science
-ಭಾರತದ ಗಾಂಧಿ ಜಯಂತಿ ಯಾವ ದಿನ ಆಚರಿಸಲಾಗುತ್ತದೆ?,2 October,15 August,26 January,1 January,A,History
-ಪ್ರపంచದ ಅತಿ ಉದ್ದದ ನದಿ ಯಾವದು?,Nile,Amazon,Ganga,Yangtze,A,Geography
-ಕ್ಯಾಮೆರಾ ಆವಿಷ್ಕಾರ ಯಾರಿಂದ?,Joseph Nicéphore Niépce,Thomas Edison,Alexander Graham Bell,James Watt,A,Technology
-ಭಾರತದ ಪ್ರಥಮ ಮಹಿಳಾ ಪ್ರಧಾನಿ ಯಾರು?,Indira Gandhi,Sonia Gandhi,Pratibha Patil,Jayalalithaa,A,History
-ಆಕಾಶದಲ್ಲಿ ಅತಿ ಉದ್ದದ ಗ್ರಹ ಯಾವದು?,Jupiter,Saturn,Neptune,Mars,A,Science
+topic,question,opt1,opt2,opt3,opt4,correct
+Math,2+2=?,3,4,5,6,B
+Science,Water formula?,H2O,CO2,O2,N2,A
