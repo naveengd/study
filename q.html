@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSV Quiz (Mobile Friendly)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 15px 20px;
+      background: #f5f5f5;
+      color: #222;
+      box-sizing: border-box;
+    }
+    h2 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px 25px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+    .question {
+      font-size: 1.3rem;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      margin: 12px 0;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1.8px solid #ccc;
+      cursor: pointer;
+      font-size: 1.1rem;
+      user-select: none;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    .option input[type="radio"] {
+      margin-right: 14px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .option:hover:not(.correct):not(.wrong) {
+      background-color: #e9f5ff;
+      border-color: #66a3ff;
+    }
+    .option.correct {
+      background: #28a745;
+      border-color: #28a745;
+      color: white;
+    }
+    .option.wrong {
+      background: #dc3545;
+      border-color: #dc3545;
+      color: white;
+    }
+    button {
+      margin-top: 25px;
+      padding: 14px 25px;
+      cursor: pointer;
+      border: none;
+      background: #007bff;
+      color: white;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 300px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      transition: background-color 0.3s;
+    }
+    button:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    button:disabled {
+      background: #9ec5ff;
+      cursor: not-allowed;
+    }
+    #score {
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 30px;
+      color: #222;
+    }
+    .progress-container {
+      width: 100%;
+      background: #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      height: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #28a745;
+      border-radius: 10px 0 0 10px;
+      transition: width 0.4s ease;
+      user-select: none;
+    }
+    .progress-text {
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      height: 22px;
+      line-height: 22px;
+      text-align: center;
+      font-weight: 600;
+      color: #222;
+      pointer-events: none;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    @media (max-width: 480px) {
+      body {
+        margin: 10px 10px;
+        padding: 10px 15px;
+      }
+      .card {
+        padding: 15px 18px;
+      }
+      .question {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+      }
+      .option {
+        font-size: 1rem;
+        padding: 10px 12px;
+      }
+      button {
+        font-size: 1.1rem;
+        padding: 12px 20px;
+        max-width: 100%;
+      }
+      .progress-container {
+        height: 18px;
+        margin-bottom: 15px;
+      }
+      .progress-text {
+        font-size: 0.8rem;
+        line-height: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div id="quiz" style="display:none;">
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+      <div class="progress-text" id="progressText"></div>
+    </div>
+
+    <div class="question" id="question"></div>
+    <form id="optionsForm" autocomplete="off"></form>
+    <button id="actionBtn">Submit</button>
+  </div>
+
+  <div id="score"></div>
+</div>
+
+<script>
+  const csvUrl = 'https://raw.githubusercontent.com/naveengd/study/refs/heads/main/q.csv';
+
+  let questions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let showingFeedback = false;
+
+  const actionBtn = document.getElementById('actionBtn');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+
+  actionBtn.addEventListener('click', handleAction);
+
+  async function fetchCsv(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch CSV');
+      const text = await response.text();
+      return text;
+    } catch (e) {
+      alert('Error loading quiz CSV: ' + e.message);
+      return null;
+    }
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    questions = lines.slice(1).map(line => {
+      const cols = line.split(',');
+      return {
+        question: cols[0],
+        options: cols.slice(1, 5),
+        correct: cols[5].trim()
+      };
+    });
+  }
+
+  function startQuiz() {
+    currentIndex = 0;
+    score = 0;
+    showingFeedback = false;
+
+    document.getElementById('quiz').style.display = 'block';
+    document.getElementById('score').innerHTML = '';
+
+    showQuestion();
+  }
+
+  function updateProgress() {
+    const total = questions.length;
+    const current = currentIndex + 1;
+    const percent = Math.round((currentIndex / total) * 100);
+    progressBar.style.width = percent + '%';
+    progressText.textContent = `${current} / ${total}`;
+  }
+
+  function showQuestion() {
+    showingFeedback = false;
+
+    updateProgress();
+
+    const q = questions[currentIndex];
+    document.getElementById('question').innerText = `Q${currentIndex + 1}: ${q.question}`;
+
+    const form = document.getElementById('optionsForm');
+    form.innerHTML = '';
+
+    q.options.forEach((opt, i) => {
+      const letter = ['A','B','C','D'][i];
+
+      const label = document.createElement('label');
+      label.className = 'option';
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'answer';
+      radio.value = letter;
+      radio.required = true;
+
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(" " + opt));
+
+      form.appendChild(label);
+    });
+
+    actionBtn.innerText = 'Submit';
+    actionBtn.disabled = false;
+  }
+
+  function handleAction() {
+    const q = questions[currentIndex];
+    const selected = document.querySelector('input[name="answer"]:checked');
+
+    if (!showingFeedback) {
+      if (!selected) {
+        alert("Please select an answer!");
+        return;
+      }
+
+      const selectedValue = selected.value;
+      const labels = document.querySelectorAll('.option');
+
+      labels.forEach((label, i) => {
+        const letter = ['A','B','C','D'][i];
+        const input = label.querySelector('input');
+
+        if (letter === q.correct) {
+          label.classList.add('correct');
+        } else if (letter === selectedValue) {
+          label.classList.add('wrong');
+        }
+
+        input.disabled = true;
+      });
+
+      if (selectedValue === q.correct) {
+        score++;
+      }
+
+      showingFeedback = true;
+      actionBtn.innerText = 'Next';
+
+    } else {
+      currentIndex++;
+
+      if (currentIndex < questions.length) {
+        showQuestion();
+      } else {
+        showScore();
+      }
+    }
+  }
+
+  function showScore() {
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('score').innerText = `Your Score: ${score} / ${questions.length}`;
+  }
+
+  (async () => {
+    const csvText = await fetchCsv(csvUrl);
+    if (csvText) {
+      parseCSV(csvText);
+      startQuiz();
+    }
+  })();
+</script>
+
+</body>
+</html>
