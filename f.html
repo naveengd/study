@@ -44,7 +44,6 @@ body {
 }
 
 .no-animate .inner { transition: none !important; }
-
 .card.flipped .inner { transform: rotateY(180deg); }
 
 .front, .back {
@@ -71,24 +70,24 @@ body {
 
 /* Controls */
 .controls {
-  margin-top: 30px;
+  margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
 }
 
-button {
+button, select {
   padding: 10px 15px;
   margin: 5px;
   border: none;
   border-radius: 6px;
-  background: #007bff;
-  color: white;
   font-size: 16px;
   cursor: pointer;
 }
 
+button { background: #007bff; color: white; }
 button:hover { background: #0056b3; }
+select { background: #eee; color: #333; }
 
 #counter {
   margin-top: 10px;
@@ -101,6 +100,12 @@ button:hover { background: #0056b3; }
 
 <div class="container">
 
+  <!-- Topic Filter -->
+  <select id="topicFilter" onchange="filterByTopic()">
+    <option value="All">All Topics</option>
+  </select>
+
+  <!-- Flashcard -->
   <div class="card" onclick="flipCard()">
     <div class="inner">
       <div class="front" id="question">Loading...</div>
@@ -108,8 +113,10 @@ button:hover { background: #0056b3; }
     </div>
   </div>
 
+  <!-- Counter -->
   <div id="counter"></div>
 
+  <!-- Controls -->
   <div class="controls">
     <button onclick="prevCard()">⬅ Prev</button>
     <button onclick="nextCard()">Next ➡</button>
@@ -123,27 +130,35 @@ button:hover { background: #0056b3; }
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyHoXnRIs_D0WITheRc1ltugfQPOey6zyEVAuH4R39gLUaQR6kogsxLUDxGaeq07PiEF8WaxoIpz5I/pub?output=csv";
 
 let flashcards = [];
+let filteredCards = [];
 let currentIndex = 0;
 let isFlipping = false;
 
-// Parse CSV into flashcards array
+// Parse CSV into flashcards array (Topic, Question, Answer)
 function parseCSV(csvText) {
   const lines = csvText.trim().split("\n");
   const result = [];
   for (let i = 1; i < lines.length; i++) { // skip header
-    const [q, a] = lines[i].split(",");
-    if(q && a) result.push({ q: q.trim(), a: a.trim() });
+    const cols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g); // handle commas in quotes
+    if (cols && cols.length >= 3) {
+      const topic = cols[0].replace(/"/g, '').trim();
+      const q = cols[1].replace(/"/g, '').trim();
+      const a = cols[2].replace(/"/g, '').trim();
+      result.push({ topic, q, a });
+    }
   }
   return result;
 }
 
-// Load CSV and initialize
+// Load CSV
 async function loadCSV() {
   try {
     const res = await fetch(csvUrl);
     const text = await res.text();
     flashcards = parseCSV(text);
-    if(flashcards.length > 0) loadCard();
+    populateTopics();
+    filteredCards = flashcards;
+    if(filteredCards.length > 0) loadCard();
     else document.getElementById("question").innerText = "No flashcards found!";
   } catch (err) {
     console.error("Error loading CSV:", err);
@@ -151,21 +166,42 @@ async function loadCSV() {
   }
 }
 
+// Populate Topic dropdown
+function populateTopics() {
+  const select = document.getElementById("topicFilter");
+  const topics = [...new Set(flashcards.map(f => f.topic))];
+  topics.forEach(t => select.add(new Option(t, t)));
+}
+
+// Filter by Topic
+function filterByTopic() {
+  const selected = document.getElementById("topicFilter").value;
+  if(selected === "All") filteredCards = flashcards;
+  else filteredCards = flashcards.filter(f => f.topic === selected);
+  currentIndex = 0;
+  loadCard();
+}
+
 // Load current card
 function loadCard() {
-  if(flashcards.length === 0) return;
+  if(filteredCards.length === 0) {
+    document.getElementById("question").innerText = "No flashcards!";
+    document.getElementById("answer").innerText = "";
+    document.getElementById("counter").innerText = "";
+    return;
+  }
 
   const card = document.querySelector(".card");
   card.classList.add("no-animate");
   card.classList.remove("flipped");
 
-  document.getElementById("question").innerText = flashcards[currentIndex].q;
-  document.getElementById("answer").innerText = flashcards[currentIndex].a;
+  document.getElementById("question").innerText = filteredCards[currentIndex].q;
+  document.getElementById("answer").innerText = filteredCards[currentIndex].a;
 
   setTimeout(() => card.classList.remove("no-animate"), 50);
 
-  // Update counter
-  document.getElementById("counter").innerText = `Card ${currentIndex + 1} of ${flashcards.length}`;
+  // Counter
+  document.getElementById("counter").innerText = `Card ${currentIndex + 1} of ${filteredCards.length}`;
 }
 
 // Flip card
@@ -180,9 +216,9 @@ function flipCard() {
 }
 
 // Controls
-function nextCard() { currentIndex = (currentIndex + 1) % flashcards.length; loadCard(); }
-function prevCard() { currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length; loadCard(); }
-function shuffleCards() { flashcards.sort(() => Math.random() - 0.5); currentIndex = 0; loadCard(); }
+function nextCard() { currentIndex = (currentIndex + 1) % filteredCards.length; loadCard(); }
+function prevCard() { currentIndex = (currentIndex - 1 + filteredCards.length) % filteredCards.length; loadCard(); }
+function shuffleCards() { filteredCards.sort(() => Math.random() - 0.5); currentIndex = 0; loadCard(); }
 
 // Keyboard navigation
 document.addEventListener("keydown", (e) => {
