@@ -4,21 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flashcards App</title>
-
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   background: #ffffff;
-
   display: flex;
   flex-direction: column;
   align-items: center;
-
   min-height: 100vh;
   padding: 20px;
 }
@@ -40,7 +35,6 @@ body {
   cursor: pointer;
 }
 
-/* Inner */
 .inner {
   width: 100%;
   height: 100%;
@@ -49,54 +43,31 @@ body {
   transition: transform 0.6s;
 }
 
-/* Disable animation temporarily */
-.no-animate .inner {
-  transition: none !important;
-}
+.no-animate .inner { transition: none !important; }
 
-.card.flipped .inner {
-  transform: rotateY(180deg);
-}
+.card.flipped .inner { transform: rotateY(180deg); }
 
-/* Flashcard look */
 .front, .back {
   position: absolute;
   width: 100%;
   height: 100%;
   border-radius: 12px;
-
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-
   padding: 20px;
   font-size: 20px;
-
   backface-visibility: hidden;
-
-  /* Shadow effect */
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   border: 1px solid #eee;
 }
 
-/* Question */
-.front {
-  background: #ffffff;
-}
+.front { background: #ffffff; }
+.back { background: #e8f5e9; color: #1b1b1b; transform: rotateY(180deg); }
 
-/* ✅ Answer styling */
-.back {
-  background: #e8f5e9;   /* light green */
-  color: #1b1b1b;        /* black text */
-  transform: rotateY(180deg);
-}
-
-/* Hover effect */
 .card:hover .front,
-.card:hover .back {
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-}
+.card:hover .back { box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
 
 /* Controls */
 .controls {
@@ -117,22 +88,27 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: #0056b3;
+button:hover { background: #0056b3; }
+
+#counter {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #333;
 }
 </style>
 </head>
-
 <body>
 
 <div class="container">
 
   <div class="card" onclick="flipCard()">
     <div class="inner">
-      <div class="front" id="question">Question</div>
-      <div class="back" id="answer">Answer</div>
+      <div class="front" id="question">Loading...</div>
+      <div class="back" id="answer">Loading...</div>
     </div>
   </div>
+
+  <div id="counter"></div>
 
   <div class="controls">
     <button onclick="prevCard()">⬅ Prev</button>
@@ -143,57 +119,80 @@ button:hover {
 </div>
 
 <script>
-let flashcards = [
-  { q: "What is 2 + 2?", a: "4" },
-  { q: "Capital of India?", a: "New Delhi" },
-  { q: "Water formula?", a: "H2O" },
-  { q: "5 x 6?", a: "30" },
-  { q: "Largest planet?", a: "Jupiter" }
-];
+// === Replace this with your published Google Sheet CSV link ===
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyHoXnRIs_D0WITheRc1ltugfQPOey6zyEVAuH4R39gLUaQR6kogsxLUDxGaeq07PiEF8WaxoIpz5I/pub?output=csv";
 
+let flashcards = [];
 let currentIndex = 0;
+let isFlipping = false;
 
+// Parse CSV into flashcards array
+function parseCSV(csvText) {
+  const lines = csvText.trim().split("\n");
+  const result = [];
+  for (let i = 1; i < lines.length; i++) { // skip header
+    const [q, a] = lines[i].split(",");
+    if(q && a) result.push({ q: q.trim(), a: a.trim() });
+  }
+  return result;
+}
+
+// Load CSV and initialize
+async function loadCSV() {
+  try {
+    const res = await fetch(csvUrl);
+    const text = await res.text();
+    flashcards = parseCSV(text);
+    if(flashcards.length > 0) loadCard();
+    else document.getElementById("question").innerText = "No flashcards found!";
+  } catch (err) {
+    console.error("Error loading CSV:", err);
+    alert("Failed to load flashcards. Check your CSV link.");
+  }
+}
+
+// Load current card
 function loadCard() {
+  if(flashcards.length === 0) return;
+
   const card = document.querySelector(".card");
-
-  // Disable animation
   card.classList.add("no-animate");
-
-  // Reset flip
   card.classList.remove("flipped");
 
-  // Update content
   document.getElementById("question").innerText = flashcards[currentIndex].q;
   document.getElementById("answer").innerText = flashcards[currentIndex].a;
 
-  // Re-enable animation
-  setTimeout(() => {
-    card.classList.remove("no-animate");
-  }, 50);
+  setTimeout(() => card.classList.remove("no-animate"), 50);
+
+  // Update counter
+  document.getElementById("counter").innerText = `Card ${currentIndex + 1} of ${flashcards.length}`;
 }
 
+// Flip card
 function flipCard() {
-  document.querySelector(".card").classList.toggle("flipped");
+  if(isFlipping) return;
+  isFlipping = true;
+
+  const card = document.querySelector(".card");
+  card.classList.toggle("flipped");
+
+  setTimeout(() => isFlipping = false, 600);
 }
 
-function nextCard() {
-  currentIndex = (currentIndex + 1) % flashcards.length;
-  loadCard();
-}
+// Controls
+function nextCard() { currentIndex = (currentIndex + 1) % flashcards.length; loadCard(); }
+function prevCard() { currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length; loadCard(); }
+function shuffleCards() { flashcards.sort(() => Math.random() - 0.5); currentIndex = 0; loadCard(); }
 
-function prevCard() {
-  currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
-  loadCard();
-}
+// Keyboard navigation
+document.addEventListener("keydown", (e) => {
+  if(e.key === "ArrowRight") nextCard();
+  if(e.key === "ArrowLeft") prevCard();
+  if(e.key === " ") flipCard();
+});
 
-function shuffleCards() {
-  flashcards.sort(() => Math.random() - 0.5);
-  currentIndex = 0;
-  loadCard();
-}
-
-// Initial load
-loadCard();
+// Initialize
+loadCSV();
 </script>
 
 </body>
