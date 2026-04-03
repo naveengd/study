@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards App</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Layout */
+.container {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Card */
+.card {
+  width: 100%;
+  height: 250px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+/* Inner */
+.inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+/* Disable animation temporarily */
+.no-animate .inner {
+  transition: none !important;
+}
+
+.card.flipped .inner {
+  transform: rotateY(180deg);
+}
+
+/* Flashcard look */
+.front, .back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  padding: 20px;
+  font-size: 20px;
+
+  backface-visibility: hidden;
+
+  /* Shadow effect */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  border: 1px solid #eee;
+}
+
+/* Question */
+.front {
+  background: #ffffff;
+}
+
+/* ✅ Answer styling */
+.back {
+  background: #e8f5e9;   /* light green */
+  color: #1b1b1b;        /* black text */
+  transform: rotateY(180deg);
+}
+
+/* Hover effect */
+.card:hover .front,
+.card:hover .back {
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+/* Controls */
+.controls {
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 6px;
+  background: #007bff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0056b3;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card" onclick="flipCard()">
+    <div class="inner">
+      <div class="front" id="question">Question</div>
+      <div class="back" id="answer">Answer</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="prevCard()">⬅ Prev</button>
+    <button onclick="nextCard()">Next ➡</button>
+    <button onclick="shuffleCards()">🔀 Shuffle</button>
+  </div>
+
+</div>
+
+<script>
+let flashcards = [
+  { q: "What is 2 + 2?", a: "4" },
+  { q: "Capital of India?", a: "New Delhi" },
+  { q: "Water formula?", a: "H2O" },
+  { q: "5 x 6?", a: "30" },
+  { q: "Largest planet?", a: "Jupiter" }
+];
+
+let currentIndex = 0;
+
+function loadCard() {
+  const card = document.querySelector(".card");
+
+  // Disable animation
+  card.classList.add("no-animate");
+
+  // Reset flip
+  card.classList.remove("flipped");
+
+  // Update content
+  document.getElementById("question").innerText = flashcards[currentIndex].q;
+  document.getElementById("answer").innerText = flashcards[currentIndex].a;
+
+  // Re-enable animation
+  setTimeout(() => {
+    card.classList.remove("no-animate");
+  }, 50);
+}
+
+function flipCard() {
+  document.querySelector(".card").classList.toggle("flipped");
+}
+
+function nextCard() {
+  currentIndex = (currentIndex + 1) % flashcards.length;
+  loadCard();
+}
+
+function prevCard() {
+  currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+  loadCard();
+}
+
+function shuffleCards() {
+  flashcards.sort(() => Math.random() - 0.5);
+  currentIndex = 0;
+  loadCard();
+}
+
+// Initial load
+loadCard();
+</script>
+
+</body>
+</html>
